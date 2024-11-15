@@ -2,126 +2,139 @@ package br.com.unifacisa.binaryTrees;
 
 public class Binary {
 
-	private Node root = null;
+	private int[] tree;          // Array para armazenar a árvore
+	private int size;            // Tamanho atual da árvore
+	private final int CAPACITY;  // Capacidade máxima do array
 
-	public Node getRoot() {
-		return root;
+	// Construtor que define a capacidade máxima da árvore
+	public Binary(int capacity) {
+		this.CAPACITY = capacity;
+		this.tree = new int[CAPACITY];
+		this.size = 0;
+
+		// Inicializa todos os elementos com valor especial (-1) indicando ausência de valor
+		for (int i = 0; i < CAPACITY; i++) {
+			tree[i] = -1;
+		}
+	}
+
+	public boolean isEmpty() {
+		return size == 0;
 	}
 
 	public void insert(int value) {
-		root = insert(root, value);
-	}
-
-	public Node insert(Node node, int value) {
-
-		if (!isEmpty(node)) {
-
-			if (value < node.getValue()) {
-
-				if (node.getLeft() != null) {
-					insert(node.getLeft(), value);
-				} else {
-					System.out.println("  Inserindo " + value + " a esqueda de " + node.getValue());
-					node.setLeft(new Node(value));
-				}
-			} else if (value > node.getValue()) {
-				if (node.getRight() != null) {
-					insert(node.getRight(), value);
-				} else {
-					System.out.println("  Inserindo " + value + " a direita de " + node.getValue());
-					node.setRight(new Node(value));
-				}
-			}
-		} else {
-			node = new Node(value);
-		}
-
-		return node;
-	}
-
-	public boolean isEmpty(Node node) {
-		return node == null;
-	}
-
-	public void inOrder(Node no) {
-		if (no != null) {
-			inOrder(no.getLeft());
-			System.out.print(no.getValue() + " ");
-			inOrder(no.getRight());
-		}
-	}
-
-	public void preOrder(Node no) {
-		if (no != null) {
-			System.out.print(no.getValue() + " ");
-			preOrder(no.getLeft());
-			preOrder(no.getRight());
-		}
-	}
-
-	public void postOrder(Node no) {
-		if (no != null) {
-			postOrder(no.getLeft());
-			postOrder(no.getRight());
-			System.out.print(no.getValue() + " ");
-		}
-	}
-
-	public void showRoot() {
-		if (root == null) {
-			System.out.println("A Arvore está vazia!");
+		if (size >= CAPACITY) {
+			System.out.println("A árvore está cheia!");
 			return;
 		}
 
-		System.out.println("Raiz " + root.getValue());
-	}
-
-	public Node remove(Node node, int value) {
-		if (node == null) {
-			System.out.println("A Arvore está vazia!");
-			return null;
-		}
-
-		System.out.println("  Percorrendo No " + node.getValue());
-
-		if (value < node.getValue()) {
-			node.setLeft(remove(node.getLeft(), value));
-
-		} else if (value > node.getValue()) {
-			node.setRight(remove(node.getRight(), value));
-
-		} else if (node.getLeft() != null && node.getRight() != null) // 2
-		// filhos
-		{
-			System.out.println("  Removeu No " + node.getValue());
-			node.setValue(findMin(node.getRight()).getValue());
-			node.setRight(removeMin(node.getRight()));
-		} else {
-			System.out.println("  Removeu No " + node.getValue());
-			node = (node.getLeft() == null) ? node.getLeft() : node.getRight();
-		}
-		return node;
-	}
-
-	public Node removeMin(Node node) {
-		if (node == null) {
-			System.out.println("  ERRO ");
-		} else if (node.getLeft() != null) {
-			node.setLeft(removeMin(node.getLeft()));
-			return node;
-		} else {
-			return node.getRight();
-		}
-		return null;
-	}
-
-	public Node findMin(Node node) {
-		if (node != null) {
-			while (node.getLeft() != null) {
-				node = node.getLeft();
+		int index = 0;
+		while (index < CAPACITY) {
+			if (tree[index] == -1) {
+				if (index == 0) {
+					System.out.println("Inserindo " + value + " como raiz");
+				} else {
+					int indicePai = getIndicePai(index);
+					if (value < tree[indicePai]) {
+						System.out.println("Inserindo " + value + " a esquerda de " + tree[indicePai]);
+					} else {
+						System.out.println("Inserindo " + value + " a direita de " + tree[indicePai]);
+					}
+				}
+				tree[index] = value;
+				size++;
+				return;
+			} else if (value < tree[index]) {
+				index = getEsquerda(index); // Vai para o filho esquerdo
+			} else {
+				index = getDireita(index); // Vai para o filho direito
 			}
 		}
-		return node;
+		System.out.println("Não foi possível inserir " + value);
 	}
 
+	// Métodos para encontrar os índices dos filhos e do pai de um elemento
+
+	// Calcula o índice do filho à esquerda de um elemento no índice 'index'.
+	// Exemplo: Se o índice do pai é 1, então o índice do filho à esquerda será 2 * 1 + 1 = 3 (índice 3)
+	private int getEsquerda(int index) {
+		return 2 * index + 1;
+	}
+
+
+	// Calcula o índice do filho à direita de um elemento no índice 'index'.
+	// Exemplo: Se o índice do pai é 1, então o índice do filho à direita será 2 * 1 + 2 = 4 (índice 4)
+	private int getDireita(int index) {
+		return 2 * index + 2;
+	}
+
+
+	// Calcula o índice do pai de um elemento no índice 'index'.
+	// Exemplo: Se o índice atual é 6, o índice do pai será (6 - 1) / 2 = 2 (índice 2)
+	private int getIndicePai(int index) {
+		return (index - 1) / 2;
+	}
+
+	public void inOrder(int index) {
+		if (index >= CAPACITY || tree[index] == -1) return;
+
+		inOrder(getEsquerda(index));    // Visita o filho esquerdo
+		System.out.print(tree[index] + " ");  // Processa o nó atual
+		inOrder(getDireita(index));   // Visita o filho direito
+	}
+
+	public void preOrder(int index) {
+		if (index >= CAPACITY || tree[index] == -1) return;
+
+		System.out.print(tree[index] + " ");  // Processa o nó atual
+		preOrder(getEsquerda(index));   // Visita o filho esquerdo
+		preOrder(getDireita(index));  // Visita o filho direito
+	}
+
+	public void postOrder(int index) {
+		if (index >= CAPACITY || tree[index] == -1) return;
+
+		postOrder(getEsquerda(index));  // Visita o filho esquerdo
+		postOrder(getDireita(index)); // Visita o filho direito
+		System.out.print(tree[index] + " ");  // Processa o nó atual
+	}
+
+	public void showRoot() {
+		if (isEmpty()) {
+			System.out.println("A Arvore está vazia!");
+		} else {
+			System.out.println("Raiz " + tree[0]);
+		}
+	}
+
+	public void remove(int value) {
+		int index = find(value, 0); // Busca o índice do valor
+		if (index == -1) {
+			System.out.println("A Arvore está vazia!");
+			return;
+		}
+		System.out.println("  Percorrendo No " + tree[index]);
+
+		// Remove o nó e reorganiza a árvore
+		System.out.println("  Removeu No " + tree[index]);
+		tree[index] = -1; // Marca o nó como removido
+		size--;
+	}
+
+	private int find(int value, int index) {
+		if (index >= CAPACITY || tree[index] == -1) return -1;
+
+		if (tree[index] == value) return index;
+		else if (value < tree[index]) return find(value, getEsquerda(index));
+		else return find(value, getDireita(index));
+	}
+
+	public int findMin(int index) {
+		while (index < CAPACITY && tree[index] != -1) {
+			int leftChild = getEsquerda(index);
+			if (leftChild >= CAPACITY || tree[leftChild] == -1) break;
+			index = leftChild;
+		}
+		return (index < CAPACITY) ? tree[index] : -1;
+	}
 }
