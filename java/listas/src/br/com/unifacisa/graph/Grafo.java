@@ -87,9 +87,9 @@ public class Grafo {
 		/*
     Visualização do grafo (busca em largura):
 
-        0
+            0
   	   / \
-      1  4
+     	  1  4
  	 /|\
 	2 | 3
 	 \_/
