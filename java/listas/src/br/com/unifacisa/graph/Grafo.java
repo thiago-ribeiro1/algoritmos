@@ -3,6 +3,7 @@ package br.com.unifacisa.graph;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Grafo {
 
@@ -42,6 +43,32 @@ public class Grafo {
 		return sb.toString();
 	}
 
+	public void buscaEmLargura(int verticeInicial) {
+		boolean[] visitados = new boolean[numVertices]; // Marca os vértices que foram visitados
+		Queue<Integer> fila = new LinkedList<>(); // Cria uma fila para controlar a ordem de visita dos vértices
+
+		// Marca o vértice inicial como visitado e o adiciona na fila
+		visitados[verticeInicial] = true;
+		fila.add(verticeInicial);
+
+		System.out.println("Busca em Largura a partir do vértice " + verticeInicial + ":\n");
+
+		// Enquanto a fila não estiver vazia, continua a busca
+		while (!fila.isEmpty()) {
+			int verticeAtual = fila.poll(); // Remove o vértice na frente da fila para processá-lo
+			System.out.println(verticeAtual); // Exibe o vértice atual
+
+			// Para cada elemento próximo do vértice atual
+			for (int proximo : adjacencyList.get(verticeAtual)) {
+				// Se o próximo ainda não foi visitado
+				if (!visitados[proximo]) {
+					visitados[proximo] = true; // Marca o próximo como visitado
+					fila.add(proximo); // Adiciona o próximo à fila
+				}
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		Grafo grafo = new Grafo(5);
 
@@ -54,5 +81,23 @@ public class Grafo {
 		grafo.addEdge(3, 4);
 
 		System.out.println(grafo.toString());
+
+		grafo.buscaEmLargura(0); // Inicia a busca em largura a partir do vértice 0
+
+		/*
+    Visualização do grafo (busca em largura):
+
+        0
+  	   / \
+      1  4
+ 	 /|\
+	2 | 3
+	 \_/
+
+    Ordem final: 0, 1, 4, 2, 3
+
+*/
+
+
 	}
 }
